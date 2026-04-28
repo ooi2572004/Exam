@@ -30,7 +30,7 @@ public class TestListStudentDao extends Dao {
 					tts.setStudentNo(studentNo);
 					tts.setClassNum(classNum);
 					tts.setPoints(new LinkedHashMap<>());
-					// 学生名はstudentテーブルからJOINして取得
+					// 学生名はstudentテーブルからJOINして取得!
 					try {
 						tts.setStudentName(resultSet.getString("student_name"));
 					} catch (Exception e) {
