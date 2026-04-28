@@ -22,6 +22,7 @@
 						<select class="form-select" id="student-f1-select" name="f1">
 							<option value="0">--------</option>
 							<c:forEach var="year" items="${ent_year_set }">
+								<%-- 現在のyearと選択されていたf1が一致していた場合selectedを追記 --%>
 								<option value="${year }" <c:if test="${year==f1 }">selected</c:if>>${year }</option>
 							</c:forEach>
 						</select>
