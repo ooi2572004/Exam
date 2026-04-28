@@ -49,7 +49,7 @@ public class TestListAction extends Action {
 				errorMsg = "成績情報が存在しませんでした";
 			}
 		}
-//
+
 		req.setAttribute("class_num_set", classNumList);
 		req.setAttribute("subject_list", subjectList);
 		req.setAttribute("test_list", testList);
