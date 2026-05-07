@@ -47,7 +47,7 @@ public class TestListStudentDao extends Dao {
 	}
 
 	/**
-	 * クラスと科目を条件に学生別成績一覧を取得
+	 * クラスと科目を条件に学生別成績一覧を取得!
 	 * subject が null の場合は全科目対象
 	 */
 	public List<TestListStudent> filter(String classNum, Subject subject,
