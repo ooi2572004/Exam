@@ -64,5 +64,5 @@ public class SubjectDao extends Dao {
 		}
 		return list;
 	}
->>>>>>> branch 'master' of https://github.com/ooi2572004/Exam.git
+
 }
