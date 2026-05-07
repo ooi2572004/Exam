@@ -15,6 +15,7 @@ import bean.TestListStudent;
 
 public class TestListStudentDao extends Dao {
 
+	/** ResultSetからTestToStudentリストを組み立てる共通処理 */
 	private List<TestListStudent> postFilter(ResultSet resultSet) throws Exception {
 		Map<String, TestListStudent> map = new LinkedHashMap<>();
 		try {
@@ -23,19 +24,15 @@ public class TestListStudentDao extends Dao {
 				String subjectCd   = resultSet.getString("subject_cd");
 				int    point       = resultSet.getInt("point");
 				String classNum    = resultSet.getString("class_num");
+				String studentName = resultSet.getString("student_name");
 
 				TestListStudent tts = map.get(studentNo);
 				if (tts == null) {
 					tts = new TestListStudent();
 					tts.setStudentNo(studentNo);
+					tts.setStudentName(studentName);
 					tts.setClassNum(classNum);
 					tts.setPoints(new LinkedHashMap<>());
-					// 学生名はstudentテーブルからJOINして取得
-					try {
-						tts.setStudentName(resultSet.getString("student_name"));
-					} catch (Exception e) {
-						tts.setStudentName("");
-					}
 					map.put(studentNo, tts);
 				}
 				tts.getPoints().put(subjectCd, point);
@@ -47,10 +44,10 @@ public class TestListStudentDao extends Dao {
 	}
 
 	/**
-	 * クラスと科目を条件に学生別成績一覧を取得!
-	 * subject が null の場合は全科目対象
+	 * 入学年度＋クラス＋科目で検索（科目・クラス毎検索）
+	 * studentテーブルをJOINしてent_yearで絞り込む
 	 */
-	public List<TestListStudent> filter(String classNum, Subject subject,
+	public List<TestListStudent> filter(int entYear, String classNum, Subject subject,
 			School school, List<Subject> subjects) throws Exception {
 
 		List<TestListStudent> list = new ArrayList<>();
@@ -63,7 +60,7 @@ public class TestListStudentDao extends Dao {
 				"select t.student_no, s.student_name, t.class_num, t.subject_cd, t.point " +
 				"from test t " +
 				"join student s on t.student_no = s.student_no " +
-				"where t.school_cd = ? and t.class_num = ?"
+				"where t.school_cd = ? and t.class_num = ? and s.ent_year = ?"
 			);
 			if (subject != null) {
 				sql.append(" and t.subject_cd = ?");
@@ -73,9 +70,45 @@ public class TestListStudentDao extends Dao {
 			statement = connection.prepareStatement(sql.toString());
 			statement.setString(1, school.getSchoolCd());
 			statement.setString(2, classNum);
+			statement.setInt(3, entYear);
 			if (subject != null) {
-				statement.setString(3, subject.getSubjectCd());
+				statement.setString(4, subject.getSubjectCd());
 			}
+
+			resultSet = statement.executeQuery();
+			list = postFilter(resultSet);
+
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (statement != null) try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+			if (connection != null) try { connection.close(); } catch (SQLException sqle) { throw sqle; }
+		}
+		return list;
+	}
+
+	/**
+	 * 学生番号で検索（学生毎検索）
+	 */
+	public List<TestListStudent> filterByStudent(String studentNo, School school,
+			List<Subject> subjects) throws Exception {
+
+		List<TestListStudent> list = new ArrayList<>();
+		Connection connection = getConnection();
+		PreparedStatement statement = null;
+		ResultSet resultSet = null;
+
+		try {
+			String sql =
+				"select t.student_no, s.student_name, t.class_num, t.subject_cd, t.point " +
+				"from test t " +
+				"join student s on t.student_no = s.student_no " +
+				"where t.school_cd = ? and t.student_no = ? " +
+				"order by t.student_no, t.subject_cd";
+
+			statement = connection.prepareStatement(sql);
+			statement.setString(1, school.getSchoolCd());
+			statement.setString(2, studentNo);
 
 			resultSet = statement.executeQuery();
 			list = postFilter(resultSet);

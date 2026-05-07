@@ -1,14 +1,14 @@
 package scoremanager.main;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import bean.School;
 import bean.Subject;
 import bean.Teacher;
-import bean.TestListStudent;
 import dao.ClassNumDao;
 import dao.SubjectDao;
-import dao.TestListStudentDao;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -19,44 +19,35 @@ public class TestListAction extends Action {
 	@Override
 	public void execute(HttpServletRequest req, HttpServletResponse res) throws Exception {
 
+		// ローカル変数の指定 1
 		HttpSession session = req.getSession();
 		Teacher teacher = (Teacher) session.getAttribute("user");
 		School school = teacher.getSchool();
 
-		SubjectDao subjectDao = new SubjectDao();
 		ClassNumDao classNumDao = new ClassNumDao();
-		TestListStudentDao testToStudentDao = new TestListStudentDao();
+		SubjectDao subjectDao = new SubjectDao();
+		LocalDate todaysDate = LocalDate.now();
+		int year = todaysDate.getYear();
 
-		String classNum  = req.getParameter("class_num");
-		String subjectCd = req.getParameter("subject_cd");
-
+		// DBからデータ取得 3
+		// ユーザーが所属している学校のクラスデータを取得
 		List<String> classNumList = classNumDao.filter(school);
+		// ユーザーが所属している学校の科目データを取得
 		List<Subject> subjectList = subjectDao.filter(school);
 
-		List<TestListStudent> testList = null;
-		String errorMsg = null;
-
-//		
-		if (classNum != null && !classNum.equals("0")) {
-
-			Subject subject = null;
-			if (subjectCd != null && !subjectCd.equals("0")) {
-				subject = subjectDao.get(subjectCd, school);
-			}
-
-			testList = testToStudentDao.filter(classNum, subject, school, subjectList);
-
-			if (testList == null || testList.isEmpty()) {
-				errorMsg = "成績情報が存在しませんでした";
-			}
+		// ビジネスロジック 4
+		// 入学年度リストを生成
+		List<Integer> entYearSet = new ArrayList<>();
+		for (int i = year - 10; i < year + 1; i++) {
+			entYearSet.add(i);
 		}
 
+		// レスポンス値をセット 6
+		req.setAttribute("ent_year_set", entYearSet);
 		req.setAttribute("class_num_set", classNumList);
 		req.setAttribute("subject_list", subjectList);
-		req.setAttribute("test_list", testList);
-		req.setAttribute("error_msg", errorMsg);
-		req.setAttribute("sel_class_num", classNum);
-		req.setAttribute("sel_subject_cd", subjectCd);
+
+		// JSPへフォワード 7
 		req.getRequestDispatcher("test_list.jsp").forward(req, res);
 	}
 }
