@@ -7,122 +7,62 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import bean.School;
 import bean.Subject;
 
 public class SubjectDao extends Dao {
 
-    public List<Subject> findAll(String schoolCd) throws Exception {
+	public Subject get(String subjectCd, School school) throws Exception {
+		Subject subject = new Subject();
+		Connection connection = getConnection();
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(
+				"select * from subject where subject_cd = ? and school_cd = ?");
+			statement.setString(1, subjectCd);
+			statement.setString(2, school.getSchoolCd());
+			ResultSet rSet = statement.executeQuery();
+			SchoolDao schoolDao = new SchoolDao();
+			if (rSet.next()) {
+				subject.setSubjectCd(rSet.getString("subject_cd"));
+				subject.setSubjectName(rSet.getString("subject_name"));
+				subject.setSchool(schoolDao.get(rSet.getString("school_cd")));
+			} else {
+				subject = null;
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (statement != null) try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+			if (connection != null) try { connection.close(); } catch (SQLException sqle) { throw sqle; }
+		}
+		return subject;
+	}
 
-        List<Subject> list = new ArrayList<>();
-
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            statement = connection.prepareStatement(
-                "select * from subject where school_cd = ? order by subject_cd"
-            );
-            statement.setString(1, schoolCd);
-
-            resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                Subject s = new Subject();
-                s.setSchoolCd(resultSet.getString("school_cd"));
-                s.setSubjectCd(resultSet.getString("subject_cd"));
-                s.setSubjectName(resultSet.getString("subject_name"));
-                list.add(s);
-            }
-
-        } catch (Exception e) {
-            throw e;
-
-        } finally {
-            if (resultSet != null) {
-                try { resultSet.close(); } catch (SQLException e) { throw e; }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { throw e; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException e) { throw e; }
-            }
-        }
-
-        return list;
-    }
-
-    public Subject find(String schoolCd, String subjectCd) throws Exception {
-
-        Subject s = null;
-
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet resultSet = null;
-
-        try {
-            statement = connection.prepareStatement(
-                "select * from subject where school_cd = ? and subject_cd = ?"
-            );
-            statement.setString(1, schoolCd);
-            statement.setString(2, subjectCd);
-
-            resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                s = new Subject();
-                s.setSchoolCd(resultSet.getString("school_cd"));
-                s.setSubjectCd(resultSet.getString("subject_cd"));
-                s.setSubjectName(resultSet.getString("subject_name"));
-            }
-
-        } catch (Exception e) {
-            throw e;
-
-        } finally {
-            if (resultSet != null) {
-                try { resultSet.close(); } catch (SQLException e) { throw e; }
-            }
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { throw e; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException e) { throw e; }
-            }
-        }
-
-        return s;
-    }
-
-    public boolean insert(Subject subject) throws Exception {
-
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        int count = 0;
-
-        try {
-            statement = connection.prepareStatement(
-                "insert into subject(school_cd, subject_cd, subject_name) values(?, ?, ?)"
-            );
-            statement.setString(1, subject.getSchoolCd());
-            statement.setString(2, subject.getSubjectCd());
-            statement.setString(3, subject.getSubjectName());
-
-            count = statement.executeUpdate();
-
-        } catch (Exception e) {
-            throw e;
-
-        } finally {
-            if (statement != null) {
-                try { statement.close(); } catch (SQLException e) { throw e; }
-            }
-            if (connection != null) {
-                try { connection.close(); } catch (SQLException e) { throw e; }
-            }
-        }
-
-        return count > 0;
-    }
+	public List<Subject> filter(School school) throws Exception {
+		List<Subject> list = new ArrayList<>();
+		Connection connection = getConnection();
+		PreparedStatement statement = null;
+		try {
+			statement = connection.prepareStatement(
+				"select * from subject where school_cd = ? order by subject_cd");
+			statement.setString(1, school.getSchoolCd());
+			ResultSet rSet = statement.executeQuery();
+			SchoolDao schoolDao = new SchoolDao();
+			while (rSet.next()) {
+				Subject subject = new Subject();
+				subject.setSubjectCd(rSet.getString("subject_cd"));
+				subject.setSubjectName(rSet.getString("subject_name"));
+				subject.setSchool(schoolDao.get(rSet.getString("school_cd")));
+				list.add(subject);
+			}
+		} catch (Exception e) {
+			throw e;
+		} finally {
+			if (statement != null) try { statement.close(); } catch (SQLException sqle) { throw sqle; }
+			if (connection != null) try { connection.close(); } catch (SQLException sqle) { throw sqle; }
+		}
+		return list;
+	}
+>>>>>>> branch 'master' of https://github.com/ooi2572004/Exam.git
 }
