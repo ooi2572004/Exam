@@ -7,7 +7,6 @@
 		<section class="me-4">
 			<h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">成績登録</h2>
 			
-			<%-- 検索用フォーム（自画面へGET送信） --%>
 			<form method="get" action="TestRegist.action">
 				<div class="row border mx-3 mb-3 py-2 align-items-center rounded">
 					<div class="col-2">
@@ -52,12 +51,16 @@
 				</div>
 			</form>
 
-			<%-- 検索結果が存在する場合のみ登録用フォームを表示 --%>
-			<c:if test="${tests != null}">
+			<%-- Action側でエラーが作られた場合の表示エリア --%>
+			<div class="text-warning mx-3 mb-3">${errors.get("point")}</div>
+
+			<c:if test="${students != null}">
 				<form action="TestRegistExecute.action" method="post">
-					<%-- 登録時に必要な共通パラメーターをhiddenで送る --%>
-					<input type="hidden" name="subject_cd" value="${f3}">
-					<input type="hidden" name="num" value="${f4}">
+					<%-- 再検索や保存用に必要な情報をhiddenで持たせておく --%>
+					<input type="hidden" name="f1" value="${f1}">
+					<input type="hidden" name="f2" value="${f2}">
+					<input type="hidden" name="f3" value="${f3}">
+					<input type="hidden" name="f4" value="${f4}">
 					
 					<table class="table table-hover mx-3">
 						<tr>
@@ -66,25 +69,28 @@
 							<th>氏名</th>
 							<th>点数</th>
 						</tr>
-						<c:forEach var="test" items="${tests}" varStatus="status">
+						<%-- 学生全員のリストをループ --%>
+						<c:forEach var="student" items="${students}" varStatus="status">
 							<tr>
-								<td>${test.student.entYear}</td>
+								<td>${student.entYear}</td>
 								<td>
-									${test.student.studentNo}
-									<%-- 複数人のデータを送るため、配列形式で学生番号を送信 --%>
-									<input type="hidden" name="student_no_${status.index}" value="${test.student.studentNo}">
+									${student.studentNo}
+									<input type="hidden" name="student_no_${status.index}" value="${student.studentNo}">
 								</td>
-								<td>${test.student.studentName}</td>
+								<td>${student.studentName}</td>
 								<td>
-									<%-- 点数入力欄（0〜100） --%>
-									<input type="number" class="form-control" name="point_${status.index}" value="${test.point}" min="0" max="100">
+									<%-- Mapからこの学生の成績があるか探す --%>
+									<c:set var="test" value="${testMap[student.studentNo]}" />
+									
+									<%-- 成績があれば point を表示、なければ空欄。min="0" max="100" で0〜100以外を弾く --%>
+									<input type="number" class="form-control" name="point_${status.index}" 
+									       value="${test != null ? test.point : ''}" min="0" max="100" placeholder="未入力">
 								</td>
 							</tr>
 						</c:forEach>
 					</table>
-					<%-- ループ回数（人数）をActionに伝える --%>
-					<input type="hidden" name="count" value="${tests.size()}">
 					
+					<input type="hidden" name="count" value="${students.size()}">
 					<div class="text-center mt-3">
 						<button type="submit" class="btn btn-primary">登録して終了</button>
 					</div>
