@@ -8,6 +8,6 @@
 
     <p class="mt-3">
         <a href="SubjectList.action" class="btn btn-primary">戻る</a>
-        <a href="SubjectList.action" class="btn btn-link">科目一覧</a>
+        <a href="SubjectList.action" class="btn btn-link">科目一覧</a>a
     </p>
 </div>
