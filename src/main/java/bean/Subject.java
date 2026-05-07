@@ -28,7 +28,7 @@ public class Subject implements Serializable {
         this.subjectCd = subjectCd;
     }
 
-    public String getSubjectName() {
+    public String getSubjectName() {aaa
         return subjectName;
     }
 
