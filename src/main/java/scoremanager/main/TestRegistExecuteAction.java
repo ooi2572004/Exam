@@ -64,11 +64,20 @@ public class TestRegistExecuteAction extends Action {
 		}
  
 		// エラーがあった場合は元の画面（TestRegistAction）に戻す
-		if (!errors.isEmpty()) {
-			req.setAttribute("errors", errors);
-			req.getRequestDispatcher("TestRegist.action").forward(req, res);
-			return;
-		}
+		// エラーがあった場合は元の画面に戻す
+				if (!errors.isEmpty()) {
+					req.setAttribute("errors", errors);
+
+					// 検索条件を再セット（TestRegistActionが学生リストを再取得するために必要）
+					req.setAttribute("f1", req.getParameter("f1")); // 入学年度
+					req.setAttribute("f2", classNum);
+					req.setAttribute("f3", subjectCd);
+					req.setAttribute("f4", String.valueOf(num));
+
+					// TestRegistActionにフォワード（学生リスト等を再取得してもらう）
+					req.getRequestDispatcher("TestRegist.action").forward(req, res);
+					return;
+				}
  
 		// エラーがなければ一括保存 ＆ 一括削除
 		if (!saveList.isEmpty()) {

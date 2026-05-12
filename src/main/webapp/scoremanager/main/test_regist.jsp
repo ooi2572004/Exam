@@ -84,7 +84,7 @@
 									
 									<%-- 成績があれば point を表示、なければ空欄。min="0" max="100" で0〜100以外を弾く --%>
 									<input type="number" class="form-control" name="point_${status.index}"
-									       value="${test != null ? test.point : ''}" min="0" max="100" placeholder="未入力">
+									       value="${test != null ? test.point : ''}" placeholder="未入力">
 								</td>
 							</tr>
 						</c:forEach>
