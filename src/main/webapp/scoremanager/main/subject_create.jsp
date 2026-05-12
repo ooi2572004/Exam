@@ -10,38 +10,39 @@
             <h2 class="h3 mb-3 fw-norma bg-secondary bg-opacity-10 py-2 px-4">
                 科目情報登録
             </h2>
-            
-            <c:if test="${not empty requestScope.error}">
-    			<div class="alert alert-danger mt-3">
-        			${requestScope.error}
-    			</div>
-			</c:if>
 
             <form action="SubjectCreateExecute.action" method="post" class="px-4">
 
-
+                <!-- 科目コード -->
                 <div class="mb-3">
                     <label class="form-label">科目コード</label>
+
                     <input type="text"
                            name="subject_cd"
-                           class="form-control"
+                           class="form-control <c:if test='${not empty errors.cd}'>is-invalid</c:if>"
                            placeholder="科目コードを入力してください"
+                           value="${cd}"
                            required>
-                           <c:if test="${not empty cdError}">
-                           	<div class="invalid-feedback">${cdError}</div>
-                           </c:if>
+
+
+                    <c:if test="${not empty errors.cd}">
+                        <div class="invalid-feedback" style="display:block;">
+                            ${errors.cd}
+                        </div>
+                    </c:if>
                 </div>
 
-
+                <!-- 科目名 -->
                 <div class="mb-3">
                     <label class="form-label">科目名</label>
+
                     <input type="text"
                            name="subject_name"
                            class="form-control"
                            placeholder="科目名を入力してください"
+                           value="${name}"
                            required>
                 </div>
-
 
                 <button type="submit" class="btn btn-primary">登録</button>
                 <div class="mt-3">
